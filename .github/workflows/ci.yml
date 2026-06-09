@@ -12,7 +12,8 @@ jobs:
       fail-fast: false
       matrix:
         grpc: [ON, OFF]
-    name: build (gRPC=${{ matrix.grpc }})
+        proto_profile: [OIP_REPOSITORY, OIP]
+    name: build (gRPC=${{ matrix.grpc }}, proto=${{ matrix.proto_profile }})
     steps:
       - uses: actions/checkout@v4
 
@@ -29,6 +30,7 @@ jobs:
           -DCMAKE_BUILD_TYPE=Release
           -DKSERVE_CLIENT_BUILD_TESTS=ON
           -DKSERVE_CLIENT_ENABLE_GRPC=${{ matrix.grpc }}
+          -DKSERVE_CLIENT_PROTO_PROFILE=${{ matrix.proto_profile }}
 
       - name: Build
         run: cmake --build build -j

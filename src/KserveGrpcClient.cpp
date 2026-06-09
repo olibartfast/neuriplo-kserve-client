@@ -368,6 +368,8 @@ bool GrpcClient::modelReady() {
   return response.ready();
 }
 
+#ifdef KSERVE_CLIENT_PROTO_REPOSITORY
+
 std::vector<RepositoryModel> GrpcClient::repositoryIndex() {
   inference::RepositoryIndexRequest request;
   inference::RepositoryIndexResponse response;
@@ -419,5 +421,24 @@ void GrpcClient::unloadModel(const std::string &model_name) {
     throwStatus("KServe gRPC RepositoryModelUnload failed", status);
   }
 }
+
+#else
+
+std::vector<RepositoryModel> GrpcClient::repositoryIndex() {
+  throw std::runtime_error(
+      "model repository gRPC not compiled in (use OIP_REPOSITORY proto profile)");
+}
+
+void GrpcClient::loadModel(const std::string & /*model_name*/) {
+  throw std::runtime_error(
+      "model repository gRPC not compiled in (use OIP_REPOSITORY proto profile)");
+}
+
+void GrpcClient::unloadModel(const std::string & /*model_name*/) {
+  throw std::runtime_error(
+      "model repository gRPC not compiled in (use OIP_REPOSITORY proto profile)");
+}
+
+#endif
 
 } // namespace kserve
