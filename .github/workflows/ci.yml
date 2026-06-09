@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [master, develop]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        grpc: [ON, OFF]
+    name: build (gRPC=${{ matrix.grpc }})
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            cmake g++ ninja-build libssl-dev \
+            libgrpc++-dev libprotobuf-dev protobuf-compiler protobuf-compiler-grpc
+
+      - name: Configure
+        run: >
+          cmake -B build -G Ninja
+          -DCMAKE_BUILD_TYPE=Release
+          -DKSERVE_CLIENT_BUILD_TESTS=ON
+          -DKSERVE_CLIENT_ENABLE_GRPC=${{ matrix.grpc }}
+
+      - name: Build
+        run: cmake --build build -j
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
