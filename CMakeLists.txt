@@ -9,6 +9,8 @@ cmake_minimum_required(VERSION 3.20)
 file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" _KSERVE_CLIENT_VERSION)
 project(neuriplo-kserve-client VERSION ${_KSERVE_CLIENT_VERSION} LANGUAGES CXX)
 
+include(cmake/CompileSpeed.cmake)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
