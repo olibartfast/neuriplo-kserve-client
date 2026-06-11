@@ -1,3 +1,9 @@
+// Profile: OIP_REPOSITORY — KServe OIP plus the Model Repository gRPC extension.
+// Field numbers match Triton Inference Server where they overlap so the client
+// stays wire-compatible with Triton and other OIP+repository servers.
+//
+// See proto/README.md for the strict OIP-only profile (KServe/OVMS base).
+
 syntax = "proto3";
 
 package inference;
@@ -143,14 +149,7 @@ message InferParameter {
     int64 int64_param = 2;
     string string_param = 3;
     double double_param = 4;
-    Int64Array int64_array_param = 5;
-    StringArray string_array_param = 6;
-  }
-  message Int64Array {
-    repeated int64 values = 1;
-  }
-  message StringArray {
-    repeated string values = 1;
+    uint64 uint64_param = 5;
   }
 }
 
