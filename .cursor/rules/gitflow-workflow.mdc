@@ -31,7 +31,7 @@ Never merge features directly into `master`. Never branch features from `master`
 ### Release
 
 1. Branch from `develop`: `git checkout -b release/<version>`
-2. Only release fixes (no new features)
+2. Update `CHANGELOG.md` for the release; only release fixes (no new features)
 3. Merge into `master`, tag version on `master`
 4. Merge back into `develop` (captures release fixes)
 5. Delete `release/<version>`
