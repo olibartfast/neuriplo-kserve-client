@@ -1,0 +1,43 @@
+---
+description: Wire-contract changes must respect runtime-first dependency order
+alwaysApply: true
+---
+
+# Cross-Repo Sequencing
+
+The ensemble validates this client against `neuriplo-kserve-runtime@develop`.
+Respect dependency order from `neuriplo-platform/ops/CLUSTER_MAP.yaml`.
+
+## Wire contract changes
+
+When a change affects request/response schema, tensor framing, health endpoints,
+or model-repository RPCs:
+
+1. **Server first** — merge additive or required behavior in
+   `neuriplo-kserve-runtime` before client assumes it (or keep client change
+   backward-compatible until runtime lands).
+2. **Client** — implement encode/decode + unit tests here; PR → `develop`.
+3. **Adapter** — if `IClient` changed, Cursor updates `neuriplo-infer`
+   `KserveEngine` in a separate PR.
+4. **Evidence** — platform e2e (`neuriplo-platform/integration-tests/`) when
+   release-gating.
+
+## Validation oracles
+
+| Check | When required |
+|-------|----------------|
+| `ctest --test-dir build` | Every C++ change |
+| `scripts/runtime_conformance.sh` | Wire or transport changes |
+| `neuriplo-infer/.../kserve_integration.sh --dry-run` | If infer harness commands may break |
+
+## PR evidence
+
+State explicitly in the PR body:
+
+- `Cross-repo impact: none | needs runtime first | needs infer adapter`
+- Which oracles were run (unit only / conformance dry-run / conformance live)
+
+## Releases
+
+Do not tag or bump `VERSION` without human approval. Pin propagation to
+`neuriplo-infer` is human-owned after a tagged client release.
