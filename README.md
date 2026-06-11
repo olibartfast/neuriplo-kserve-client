@@ -3,8 +3,7 @@
 A standalone C++ client for the **KServe V2 / Open Inference Protocol** (OIP),
 the wire protocol exposed by [KServe](https://kserve.github.io/website/),
 [Triton Inference Server](https://github.com/triton-inference-server/server),
-[OpenVINO Model Server](https://github.com/openvinotoolkit/model_server) and
-TorchServe.
+[OpenVINO Model Server](https://github.com/openvinotoolkit/model_server).
 
 It is a **pure protocol client**: tensor payloads are carried as raw
 little-endian bytes (like Triton's client library), so the library depends only
@@ -37,7 +36,9 @@ adapter layer in the consumer (e.g. `KserveEngine` in
 | `include/KserveProtocol.hpp` | Pure helpers: URL/HTTP parsing, tensor encode/decode, path builders |
 | `include/KserveHttpClient.hpp` / `KserveGrpcClient.hpp` | Transport clients |
 | `include/KserveRetry.hpp` | Retry policy + backoff schedule |
-| `proto/kserve_grpc.proto` | KServe V2 gRPC service (+ Model Repository extension) |
+| `proto/` | gRPC proto profiles — see [proto/README.md](proto/README.md) |
+| `proto/kserve_grpc.proto` | Default profile: OIP + Model Repository (Triton-compatible) |
+| `proto/oip/grpc_predict_v2.proto` | Strict KServe OIP (OVMS, base KServe) |
 
 ## Build
 
@@ -54,6 +55,13 @@ Options:
 | `KSERVE_CLIENT_ENABLE_GRPC` | `ON` | Build the gRPC transport (needs Protobuf + gRPC) |
 | `KSERVE_CLIENT_ENABLE_TLS` | `ON` | HTTPS for the HTTP client (needs OpenSSL) |
 | `KSERVE_CLIENT_BUILD_TESTS` | top-level only | Build the GoogleTest suite |
+| `KSERVE_CLIENT_PROTO_PROFILE` | `OIP_REPOSITORY` | `OIP` (strict KServe/OVMS) or `OIP_REPOSITORY` (Triton + repo) |
+| `KSERVE_CLIENT_PROTO_FILE` | *(unset)* | Override: path to a custom `.proto` |
+
+```bash
+# Strict OIP for KServe / OVMS (no repository gRPC stubs)
+cmake -B build -DKSERVE_CLIENT_PROTO_PROFILE=OIP
+```
 
 When Protobuf/gRPC or OpenSSL are absent the build still succeeds with the
 corresponding capability compiled out (`https://` / `grpcs://` endpoints then
@@ -65,13 +73,14 @@ fail fast with a clear error).
 include(FetchContent)
 FetchContent_Declare(neuriplo-kserve-client
     GIT_REPOSITORY https://github.com/olibartfast/neuriplo-kserve-client.git
-    GIT_TAG        v0.1.0)
+    GIT_TAG        v0.2.0)
 FetchContent_MakeAvailable(neuriplo-kserve-client)
 target_link_libraries(your_target PRIVATE neuriplo::kserve-client)
 ```
 
 The target exports a PUBLIC `KSERVE_CLIENT_WITH_GRPC` define when the gRPC
-transport is compiled in, so consumers can `#ifdef` on its availability.
+transport is compiled in, and `KSERVE_CLIENT_PROTO_REPOSITORY` when the proto
+includes the Model Repository gRPC extension, so consumers can `#ifdef` on both.
 
 ## Runtime configuration (environment)
 

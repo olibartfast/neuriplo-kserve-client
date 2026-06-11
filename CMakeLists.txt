@@ -16,6 +16,13 @@ option(KSERVE_CLIENT_ENABLE_GRPC "Build the gRPC transport" ON)
 option(KSERVE_CLIENT_ENABLE_TLS "Enable HTTPS (OpenSSL) for the HTTP client" ON)
 option(KSERVE_CLIENT_BUILD_TESTS "Build the unit tests" ${PROJECT_IS_TOP_LEVEL})
 
+# gRPC proto profile: OIP (strict KServe/OVMS) or OIP_REPOSITORY (Triton + repo).
+set(KSERVE_CLIENT_PROTO_PROFILE "OIP_REPOSITORY" CACHE STRING
+    "gRPC proto profile: OIP or OIP_REPOSITORY (see proto/README.md)")
+set_property(CACHE KSERVE_CLIENT_PROTO_PROFILE PROPERTY STRINGS OIP OIP_REPOSITORY)
+set(KSERVE_CLIENT_PROTO_FILE "" CACHE FILEPATH
+    "Optional override: path to a .proto file (takes precedence over the profile)")
+
 include(FetchContent)
 
 # nlohmann/json: reuse the consumer's target when embedded; otherwise fetch it.
@@ -46,10 +53,33 @@ if(KSERVE_CLIENT_ENABLE_GRPC)
         set(_KSERVE_CLIENT_WITH_GRPC TRUE)
         message(STATUS "neuriplo-kserve-client: gRPC transport enabled")
 
-        set(PROTO_FILE "${CMAKE_CURRENT_SOURCE_DIR}/proto/kserve_grpc.proto")
-        get_filename_component(PROTO_DIR "${PROTO_FILE}" DIRECTORY)
+        set(_KSERVE_PROTO_REPOSITORY FALSE)
+        if(KSERVE_CLIENT_PROTO_FILE)
+            set(_KSERVE_PROTO_SRC "${KSERVE_CLIENT_PROTO_FILE}")
+        elseif(KSERVE_CLIENT_PROTO_PROFILE STREQUAL "OIP")
+            set(_KSERVE_PROTO_SRC
+                "${CMAKE_CURRENT_SOURCE_DIR}/proto/oip/grpc_predict_v2.proto")
+        else()
+            set(_KSERVE_PROTO_SRC
+                "${CMAKE_CURRENT_SOURCE_DIR}/proto/kserve_grpc.proto")
+            set(_KSERVE_PROTO_REPOSITORY TRUE)
+        endif()
+
         set(PROTO_GEN_DIR "${CMAKE_CURRENT_BINARY_DIR}/proto")
         file(MAKE_DIRECTORY "${PROTO_GEN_DIR}")
+        set(PROTO_FILE "${PROTO_GEN_DIR}/kserve_grpc.proto")
+        configure_file("${_KSERVE_PROTO_SRC}" "${PROTO_FILE}" COPYONLY)
+
+        if(NOT _KSERVE_PROTO_REPOSITORY AND KSERVE_CLIENT_PROTO_FILE)
+            file(READ "${PROTO_FILE}" _KSERVE_PROTO_TEXT)
+            if(_KSERVE_PROTO_TEXT MATCHES "rpc RepositoryIndex")
+                set(_KSERVE_PROTO_REPOSITORY TRUE)
+            endif()
+        endif()
+
+        get_filename_component(PROTO_DIR "${PROTO_FILE}" DIRECTORY)
+        message(STATUS "neuriplo-kserve-client: gRPC proto profile "
+                       "${KSERVE_CLIENT_PROTO_PROFILE} (${_KSERVE_PROTO_SRC})")
 
         set(PROTO_SRCS "${PROTO_GEN_DIR}/kserve_grpc.pb.cc")
         set(GRPC_SRCS "${PROTO_GEN_DIR}/kserve_grpc.grpc.pb.cc")
@@ -126,6 +156,10 @@ endif()
 if(_KSERVE_CLIENT_WITH_GRPC)
     # PUBLIC so consumers can #ifdef on gRPC availability.
     target_compile_definitions(neuriplo-kserve-client PUBLIC KSERVE_CLIENT_WITH_GRPC)
+    if(_KSERVE_PROTO_REPOSITORY)
+        target_compile_definitions(neuriplo-kserve-client PUBLIC
+            KSERVE_CLIENT_PROTO_REPOSITORY)
+    endif()
     target_include_directories(neuriplo-kserve-client PRIVATE "${PROTO_GEN_DIR}")
     target_link_libraries(neuriplo-kserve-client PRIVATE protobuf::libprotobuf gRPC::grpc++)
 endif()
