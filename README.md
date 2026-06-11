@@ -91,6 +91,32 @@ includes the Model Repository gRPC extension, so consumers can `#ifdef` on both.
 | `KSERVE_CA_CERT` / `KSERVE_CLIENT_CERT` / `KSERVE_CLIENT_KEY` | TLS / mTLS material |
 | `KSERVE_MAX_RETRIES` / `KSERVE_RETRY_BASE_MS` / `KSERVE_RETRY_MAX_MS` / `KSERVE_RETRY_JITTER` | Retry policy |
 
+## Validation
+
+Unit tests cover protocol helpers, retry, and TLS config (no live server):
+
+```bash
+cmake -B build -DKSERVE_CLIENT_BUILD_TESTS=ON
+cmake --build build -j
+ctest --test-dir build --output-on-failure
+```
+
+**Runtime conformance** — dry-run (CI) and live against a sibling
+`neuriplo-kserve-runtime` checkout:
+
+```bash
+# Dry-run — validates command construction; registered as CTest
+bash scripts/runtime_conformance.sh --dry-run
+
+# Live — needs a built runtime (stub backend) and curl
+bash scripts/runtime_conformance.sh --live
+bash scripts/runtime_conformance.sh --live --transports http
+# gRPC live: pending kserve-client-conformance binary (see plan/NEXT_STEPS.md)
+```
+
+See `plan/NEXT_STEPS.md` for the Codex work track and
+`AGENTS.md` for cross-repo sequencing rules.
+
 ## License
 
 MIT — see [LICENSE](LICENSE).

@@ -29,3 +29,13 @@ target_link_libraries(neuriplo-kserve-client-tests PRIVATE
 
 include(GoogleTest)
 gtest_discover_tests(neuriplo-kserve-client-tests)
+
+# Dry-run conformance against neuriplo-kserve-runtime (no runtime binary required).
+add_test(
+    NAME runtime_conformance_dry_run
+    COMMAND "${CMAKE_SOURCE_DIR}/scripts/runtime_conformance.sh" --dry-run
+)
+set_tests_properties(runtime_conformance_dry_run PROPERTIES
+    LABELS "conformance"
+    TIMEOUT 60
+)
