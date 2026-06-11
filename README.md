@@ -108,10 +108,10 @@ ctest --test-dir build --output-on-failure
 # Dry-run — validates command construction; registered as CTest
 bash scripts/runtime_conformance.sh --dry-run
 
-# Live — needs a built runtime (stub backend) and curl
+# Live — needs a built runtime (stub backend), curl, and gRPC build for --transports grpc
 bash scripts/runtime_conformance.sh --live
 bash scripts/runtime_conformance.sh --live --transports http
-# gRPC live: pending kserve-client-conformance binary (see plan/NEXT_STEPS.md)
+# gRPC live uses test/kserve-client-conformance (KserveGrpcClient oracle)
 ```
 
 See `plan/NEXT_STEPS.md` for the Codex work track and
