@@ -1,0 +1,51 @@
+---
+description: GitFlow branching workflow for git operations, PRs, and releases
+alwaysApply: true
+---
+
+# GitFlow Workflow
+
+Follow [Atlassian GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow). In this repo, production is `master` and integration is `develop`.
+
+## Branch roles
+
+| Branch | Purpose |
+|--------|---------|
+| `master` | Official release history; tag releases here |
+| `develop` | Integration branch for upcoming release |
+| `feat/*` | New work; parent is always `develop` |
+| `release/*` | Release prep (bug fixes, docs only); parent is `develop` |
+| `hotfix/*` | Production patches; parent is `master` only |
+
+Never merge features directly into `master`. Never branch features from `master`.
+
+## Agent workflow
+
+### New feature
+
+1. Branch from latest `develop`: `git checkout develop && git pull && git checkout -b feat/<short-name>`
+2. Commit on the feature branch
+3. Open PR targeting `develop` (not `master`)
+4. After merge, delete the feature branch
+
+### Release
+
+1. Branch from `develop`: `git checkout -b release/<version>`
+2. Only release fixes (no new features)
+3. Merge into `master`, tag version on `master`
+4. Merge back into `develop` (captures release fixes)
+5. Delete `release/<version>`
+
+### Hotfix
+
+1. Branch from `master`: `git checkout master && git pull && git checkout -b hotfix/<short-name>`
+2. Fix, then merge into both `master` and `develop`
+3. Tag updated version on `master`
+4. Delete the hotfix branch
+
+## Rules
+
+- Before starting work, confirm current branch matches the task type (feature → `develop`, hotfix → `master`)
+- Prefer PRs for merges into `develop`, `master`, and `release/*`
+- Do not push to `master` or `develop` directly unless the user explicitly asks
+- Do not create commits on `develop` or `master` for feature work; use a `feat/*` branch
