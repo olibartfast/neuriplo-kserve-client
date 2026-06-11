@@ -5,6 +5,18 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- gRPC raw-contents unit tests and `kserve-client-conformance` live oracle binary.
+- Runtime conformance harness gRPC leg via `KserveGrpcClient` (no grpcurl).
+
+### Changed
+
+- `KserveGrpcClient` tolerates servers that populate `fp64_contents` when the
+  declared typed repeated field is empty (additive compatibility).
+
 ## [0.2.0] - 2026-06-11
 
 ### Added

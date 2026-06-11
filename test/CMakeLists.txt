@@ -39,3 +39,30 @@ set_tests_properties(runtime_conformance_dry_run PROPERTIES
     LABELS "conformance"
     TIMEOUT 60
 )
+
+if(_KSERVE_CLIENT_WITH_GRPC)
+    add_executable(neuriplo-kserve-client-grpc-tests
+        ${CMAKE_CURRENT_SOURCE_DIR}/test_KserveGrpcClient.cpp
+    )
+
+    target_include_directories(neuriplo-kserve-client-grpc-tests PRIVATE
+        "${PROTO_GEN_DIR}")
+
+    target_link_libraries(neuriplo-kserve-client-grpc-tests PRIVATE
+        neuriplo-kserve-client
+        protobuf::libprotobuf
+        gRPC::grpc++
+        gtest
+        gtest_main
+    )
+
+    gtest_discover_tests(neuriplo-kserve-client-grpc-tests)
+
+    add_executable(kserve-client-conformance
+        ${CMAKE_CURRENT_SOURCE_DIR}/kserve_client_conformance.cpp
+    )
+
+    target_link_libraries(kserve-client-conformance PRIVATE
+        neuriplo-kserve-client
+    )
+endif()
