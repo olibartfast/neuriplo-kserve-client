@@ -1,24 +1,17 @@
 #!/usr/bin/env bash
-# Client ↔ neuriplo-kserve-runtime conformance harness.
-#
-# Validates that the KServe V2 wire surface the client implements matches the
-# reference runtime (stub backend). Uses curl and grpcurl as portable oracles;
-# unit tests in test/ cover client encode/decode directly.
+# Client <-> neuriplo-kserve-runtime conformance harness.
 #
 # Modes:
 #   --dry-run   Print/validate commands without executing (CI default).
-#   --live      Start a local runtime binary and run HTTP (+ gRPC when available).
-#
-# Usage:
-#   bash scripts/runtime_conformance.sh --dry-run
-#   bash scripts/runtime_conformance.sh --live
-#   bash scripts/runtime_conformance.sh --live --transports http
+#   --live      Start a local runtime binary and run HTTP + gRPC checks.
 #
 # Environment overrides:
-#   RUNTIME_BIN   Path to neuriplo-kserve-runtime executable
-#   HTTP_PORT     HTTP listen port (default 19090)
-#   GRPC_PORT     gRPC listen port (default 19091; 0 disables gRPC checks)
-#   MODEL_NAME    Model name (default demo — stub backend)
+#   RUNTIME_BIN           Path to neuriplo-kserve-runtime executable
+#   HTTP_PORT             HTTP listen port (default 19090)
+#   GRPC_PORT             gRPC listen port (default 19091; 0 disables gRPC)
+#   MODEL_NAME            Model name (default demo)
+#   MODEL_VERSION         Model version (default 1)
+#   CONFORMANCE_CLIENT    Path to kserve-client-conformance executable
 #
 set -euo pipefail
 
@@ -29,14 +22,13 @@ DRY_RUN=false
 REQUIRE_LIVE=false
 TRANSPORTS="http,grpc"
 MODEL_NAME="${MODEL_NAME:-demo}"
+MODEL_VERSION="${MODEL_VERSION:-1}"
 HTTP_PORT="${HTTP_PORT:-19090}"
 GRPC_PORT="${GRPC_PORT:-19091}"
-PROTO_FILE="${PROTO_FILE:-${REPO_ROOT}/proto/kserve_grpc.proto}"
-
 RUNTIME_PID=""
 
 usage() {
-  sed -n '2,22p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,18p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 while [[ $# -gt 0 ]]; do
@@ -49,6 +41,7 @@ while [[ $# -gt 0 ]]; do
     --http-port) HTTP_PORT="${2:?}"; shift ;;
     --grpc-port) GRPC_PORT="${2:?}"; shift ;;
     --model-name) MODEL_NAME="${2:?}"; shift ;;
+    --model-version) MODEL_VERSION="${2:?}"; shift ;;
     -h | --help) usage; exit 0 ;;
     *) echo "Unknown argument: $1" >&2; usage; exit 2 ;;
   esac
@@ -56,7 +49,6 @@ while [[ $# -gt 0 ]]; do
 done
 
 has() { [[ ",$1," == *",$2,"* ]]; }
-
 log() { printf '%s\n' "$*"; }
 section() { printf '\n=== %s ===\n' "$*"; }
 
@@ -101,6 +93,25 @@ resolve_runtime_bin() {
     fi
   done
   printf '%s' "${REPO_ROOT}/../neuriplo-kserve-runtime/build/debug/neuriplo-kserve-runtime"
+}
+
+resolve_conformance_client() {
+  if [[ -n "${CONFORMANCE_CLIENT:-}" ]]; then
+    printf '%s' "${CONFORMANCE_CLIENT}"
+    return
+  fi
+  local candidate
+  for candidate in \
+    "${REPO_ROOT}/build/test/kserve-client-conformance" \
+    "${REPO_ROOT}/build-grpc/test/kserve-client-conformance" \
+    "${REPO_ROOT}/build-repo/test/kserve-client-conformance" \
+    "${REPO_ROOT}/build-oip/test/kserve-client-conformance"; do
+    if [[ -x "${candidate}" ]]; then
+      printf '%s' "${candidate}"
+      return
+    fi
+  done
+  printf '%s' "${REPO_ROOT}/build/test/kserve-client-conformance"
 }
 
 wait_http_ready() {
@@ -166,24 +177,15 @@ check_http_infer() {
 
 check_grpc_infer() {
   section "gRPC inference"
-  local hostport="127.0.0.1:${GRPC_PORT}"
-  local req='{"model_name":"'"${MODEL_NAME}"'","inputs":[{"name":"input","shape":[1,3,224,224],"datatype":"FP32","contents":{"fp32_contents":[]}}]}'
-  local cmd=(grpcurl -plaintext -proto "${PROTO_FILE}"
-    -d "${req}" "${hostport}" inference.GRPCInferenceService/ModelInfer)
-  run_cmd "${cmd[@]}"
-  if [[ "${DRY_RUN}" == true ]]; then
-    return 0
+  local client
+  client="$(resolve_conformance_client)"
+  local endpoint="grpc://127.0.0.1:${GRPC_PORT}"
+  if [[ "${DRY_RUN}" == false ]]; then
+    [[ -x "${client}" ]] ||
+      skip_or_fail "conformance client not executable at ${client}; build tests with gRPC enabled"
   fi
-  if ! command -v grpcurl >/dev/null 2>&1; then
-    skip_or_fail "grpcurl not installed"
-  fi
-  local resp
-  resp="$("${cmd[@]}")" || {
-    echo "ERROR: gRPC infer failed (runtime may lack gRPC; use a real-onnx-grpc build)" >&2
-    return 1
-  }
-  echo "${resp}" | grep -q 'output' ||
-    { echo "ERROR: gRPC infer response missing output" >&2; return 1; }
+  run_cmd "${client}" --grpc-endpoint "${endpoint}" --model-name "${MODEL_NAME}" \
+    --model-version "${MODEL_VERSION}"
   log "gRPC infer OK"
 }
 
@@ -214,15 +216,10 @@ log "transports=${TRANSPORTS} model=${MODEL_NAME} http_port=${HTTP_PORT} grpc_po
 
 RUNTIME_BIN="$(resolve_runtime_bin)"
 log "runtime_bin=${RUNTIME_BIN}"
-log "proto_file=${PROTO_FILE}"
 
 if [[ "${DRY_RUN}" == false ]]; then
   command -v curl >/dev/null 2>&1 || skip_or_fail "curl not available"
   [[ -x "${RUNTIME_BIN}" ]] || skip_or_fail "runtime binary not executable at ${RUNTIME_BIN}"
-fi
-
-if [[ ! -f "${PROTO_FILE}" && "${DRY_RUN}" == false ]] && has "${TRANSPORTS}" grpc; then
-  skip_or_fail "gRPC proto not found at ${PROTO_FILE}"
 fi
 
 start_runtime "${RUNTIME_BIN}"

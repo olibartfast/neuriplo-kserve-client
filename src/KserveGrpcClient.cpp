@@ -163,31 +163,52 @@ void appendBytes(std::vector<uint8_t> &out, const Range &range) {
   }
 }
 
+// Compatibility fallback for servers that declare a narrower datatype but
+// populate fp64_contents instead of the matching typed repeated field.
+template <typename T, typename Range, typename FallbackRange>
+void appendBytesOrFp64Fallback(std::vector<uint8_t> &out, const Range &range,
+                               const FallbackRange &fp64_fallback) {
+  if (range.size() > 0) {
+    appendBytes<T>(out, range);
+  } else {
+    appendBytes<T>(out, fp64_fallback);
+  }
+}
+
 std::vector<uint8_t> contentsToBytes(const inference::InferTensorContents &c,
                                      const std::string &datatype) {
   std::vector<uint8_t> out;
   if (datatype == "FP32") {
-    appendBytes<float>(out, c.fp32_contents());
+    appendBytesOrFp64Fallback<float>(out, c.fp32_contents(),
+                                     c.fp64_contents());
   } else if (datatype == "FP64") {
     appendBytes<double>(out, c.fp64_contents());
   } else if (datatype == "INT8") {
-    appendBytes<int8_t>(out, c.int_contents());
+    appendBytesOrFp64Fallback<int8_t>(out, c.int_contents(),
+                                      c.fp64_contents());
   } else if (datatype == "INT16") {
-    appendBytes<int16_t>(out, c.int_contents());
+    appendBytesOrFp64Fallback<int16_t>(out, c.int_contents(),
+                                       c.fp64_contents());
   } else if (datatype == "INT32") {
-    appendBytes<int32_t>(out, c.int_contents());
+    appendBytesOrFp64Fallback<int32_t>(out, c.int_contents(),
+                                       c.fp64_contents());
   } else if (datatype == "INT64") {
-    appendBytes<int64_t>(out, c.int64_contents());
+    appendBytesOrFp64Fallback<int64_t>(out, c.int64_contents(),
+                                       c.fp64_contents());
   } else if (datatype == "UINT8") {
-    appendBytes<uint8_t>(out, c.uint_contents());
+    appendBytesOrFp64Fallback<uint8_t>(out, c.uint_contents(),
+                                       c.fp64_contents());
   } else if (datatype == "BOOL") {
     appendBytes<uint8_t>(out, c.bool_contents());
   } else if (datatype == "UINT16") {
-    appendBytes<uint16_t>(out, c.uint_contents());
+    appendBytesOrFp64Fallback<uint16_t>(out, c.uint_contents(),
+                                        c.fp64_contents());
   } else if (datatype == "UINT32") {
-    appendBytes<uint32_t>(out, c.uint_contents());
+    appendBytesOrFp64Fallback<uint32_t>(out, c.uint_contents(),
+                                        c.fp64_contents());
   } else if (datatype == "UINT64") {
-    appendBytes<uint64_t>(out, c.uint64_contents());
+    appendBytesOrFp64Fallback<uint64_t>(out, c.uint64_contents(),
+                                        c.fp64_contents());
   } else {
     throw std::runtime_error("unsupported KServe gRPC output datatype: " +
                              datatype);

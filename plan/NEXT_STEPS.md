@@ -51,12 +51,10 @@ HTTP live conformance is green against `neuriplo-kserve-runtime@develop`.
 raw-contents infer against a live runtime. That exercises the real client code path
 and removes an external harness dependency.
 
-- [ ] Add `test/conformance_grpc_main.cpp` (or similar) — one FP32 raw-contents round-trip
-- [ ] Wire `scripts/runtime_conformance.sh --live --transports grpc` to invoke the binary
+- [x] Add `test/kserve_client_conformance.cpp` — live gRPC oracle via `KserveGrpcClient`
+- [x] Wire `scripts/runtime_conformance.sh --live --transports grpc` to invoke the binary
+- [x] gRPC unit tests for raw contents + `fp64_contents` typed fallback
 - [ ] Add FP16/BF16 raw-contents case if runtime exposes those outputs (spec § tensor contents)
-
-Until Step 2 lands, `scripts/runtime_conformance.sh` dry-run still prints a grpcurl
-command for documentation; live gRPC skips gracefully when the binary is absent.
 
 ### Step 3 — CI wiring
 
