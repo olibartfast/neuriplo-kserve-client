@@ -73,7 +73,7 @@ fail fast with a clear error).
 include(FetchContent)
 FetchContent_Declare(neuriplo-kserve-client
     GIT_REPOSITORY https://github.com/olibartfast/neuriplo-kserve-client.git
-    GIT_TAG        v0.1.0)
+    GIT_TAG        v0.2.0)
 FetchContent_MakeAvailable(neuriplo-kserve-client)
 target_link_libraries(your_target PRIVATE neuriplo::kserve-client)
 ```
