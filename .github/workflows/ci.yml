@@ -21,13 +21,19 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
-            cmake g++ ninja-build libssl-dev \
+            cmake g++ ninja-build ccache libssl-dev \
             libgrpc++-dev libprotobuf-dev protobuf-compiler protobuf-compiler-grpc
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1
+        with:
+          key: ${{ github.job }}-${{ runner.os }}-${{ matrix.grpc }}-${{ matrix.proto_profile }}
 
       - name: Configure
         run: >
           cmake -B build -G Ninja
           -DCMAKE_BUILD_TYPE=Release
+          -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
           -DKSERVE_CLIENT_BUILD_TESTS=ON
           -DKSERVE_CLIENT_ENABLE_GRPC=${{ matrix.grpc }}
           -DKSERVE_CLIENT_PROTO_PROFILE=${{ matrix.proto_profile }}
