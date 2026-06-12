@@ -1,6 +1,7 @@
 # Next Steps — Codex work track
 
-**Agent:** Codex · **Integration branch:** `develop` · **Status:** onboarding complete; conformance track active
+**Agent:** Codex (standby — session limits) · **Integration branch:** `develop` ·
+**Status:** conformance track complete through live gRPC; backlog only
 
 This file is the living task queue for Codex-owned work in
 `neuriplo-kserve-client`. Cursor owns runtime (`neuriplo-kserve-runtime`) and
@@ -20,7 +21,7 @@ infer adapter/integration; the human owns `neuriplo` and release merges.
 **Goal:** Own client ↔ `neuriplo-kserve-runtime` validation in this repo so Codex
 can prove wire correctness without editing infer or runtime.
 
-### Step 1 — Conformance harness (in progress)
+### Step 1 — Conformance harness (done)
 
 - [x] `scripts/runtime_conformance.sh` — dry-run + live driver against sibling runtime
 - [x] Register with CTest as `runtime_conformance_dry_run` (always runs in CI)
@@ -41,10 +42,10 @@ bash scripts/runtime_conformance.sh --dry-run
 bash scripts/runtime_conformance.sh --live
 ```
 
-### Step 2 — gRPC live parity (library oracle, not grpcurl)
+### Step 2 — gRPC live parity (library oracle, not grpcurl) (done)
 
-`neuriplo-infer/docs/KserveCompatibility.md` marks runtime gRPC as dry-run only.
-HTTP live conformance is green against `neuriplo-kserve-runtime@develop`.
+Runtime PR #9 merged (`raw_output_contents` on responses). Live conformance
+revalidated 2026-06-12 against `neuriplo-kserve-runtime@develop` — HTTP + gRPC PASS.
 
 **Decision:** do not depend on system `grpcurl`. Build a tiny
 `kserve-client-conformance` binary (linked to `KserveGrpcClient`) that performs one
@@ -58,7 +59,7 @@ and removes an external harness dependency.
 
 ### Step 3 — CI wiring
 
-- [ ] CTest dry-run job in `.github/workflows/ci.yml` (no runtime binary in GitHub runners)
+- [x] CTest dry-run job in `.github/workflows/ci.yml` (`ctest -L conformance`)
 - [ ] Optional: scheduled or manual `workflow_dispatch` live job with runtime artifact (coordinate with human)
 
 ## Backlog (prioritized)
