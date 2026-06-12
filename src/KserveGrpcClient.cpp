@@ -163,8 +163,9 @@ void appendBytes(std::vector<uint8_t> &out, const Range &range) {
   }
 }
 
-// Compatibility fallback for servers that declare a narrower datatype but
-// populate fp64_contents instead of the matching typed repeated field.
+// Legacy-compat fallback for pre-0.3 runtimes that widened numeric outputs into
+// fp64_contents instead of raw_output_contents or the matching typed field.
+// Keep when reading typed contents; neuriplo-kserve-runtime@develop emits raw bytes.
 template <typename T, typename Range, typename FallbackRange>
 void appendBytesOrFp64Fallback(std::vector<uint8_t> &out, const Range &range,
                                const FallbackRange &fp64_fallback) {
