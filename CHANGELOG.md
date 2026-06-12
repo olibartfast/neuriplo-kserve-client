@@ -14,8 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `KserveGrpcClient` tolerates servers that populate `fp64_contents` when the
-  declared typed repeated field is empty (additive compatibility).
+- `KserveGrpcClient` `fp64_contents` typed fallback documented as legacy-compat
+  for pre-0.3 runtimes; `neuriplo-kserve-runtime@develop` emits
+  `raw_output_contents` (runtime PR #9).
+- Conformance plan: Step 3 CI dry-run checked off; live gRPC revalidated against
+  merged runtime.
 
 ## [0.2.0] - 2026-06-11
 
