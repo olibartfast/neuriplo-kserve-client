@@ -43,3 +43,6 @@ jobs:
 
       - name: Test
         run: ctest --test-dir build --output-on-failure
+
+      - name: Conformance dry-run
+        run: ctest --test-dir build --output-on-failure -L conformance
