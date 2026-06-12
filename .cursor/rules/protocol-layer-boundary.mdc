@@ -1,0 +1,38 @@
+---
+description: Keep changes inside the KServe protocol client layer
+alwaysApply: true
+---
+
+# Protocol Layer Boundary
+
+This repo is the **KServe V2 / OIP wire client only**. Codex owns encode/decode,
+transports, retry, TLS, and `kserve::IClient`.
+
+## In scope
+
+- `include/`, `src/`, `proto/`, `test/`, `scripts/` conformance helpers
+- Unit tests for protocol helpers and transport behavior
+- Documentation of wire behavior and CMake build flags
+
+## Out of scope (other repos)
+
+| Concern | Owner repo |
+|---------|------------|
+| `TensorElement` / task tensors | `neuriplo-infer` (`KserveEngine`) |
+| Backend execution, plugins | `neuriplo` |
+| KServe HTTP server, scheduling | `neuriplo-kserve-runtime` |
+| Task preprocessing/postprocessing | `neuriplo-tasks` |
+| Release pins in consumers | Human (`neuriplo-infer/versions.env`) |
+
+## Rules
+
+1. **No neuriplo dependency** — do not link or include neuriplo headers.
+2. **Raw bytes on the wire** — `InferInput` / `InferOutput` carry little-endian
+   payloads; typed conversion belongs in consumer adapters.
+3. **`IClient` changes need review** — treat signature or semantic changes as
+   breaking; note downstream impact for `neuriplo-infer`.
+4. **Proto edits need review** — `proto/` changes affect gRPC stubs and server
+   compatibility; document which profile (`OIP` / `OIP_REPOSITORY`) is affected.
+5. **Do not edit sibling repos from this task** unless the user explicitly asks
+   for a coordinated cross-repo change; prefer opening a follow-up in the owner
+   repo.

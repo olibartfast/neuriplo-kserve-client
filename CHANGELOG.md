@@ -5,6 +5,23 @@ All notable changes to this project are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [0.3.0] - 2026-06-12
+
+### Added
+
+- gRPC raw-contents unit tests and `kserve-client-conformance` live oracle binary.
+- Runtime conformance harness gRPC leg via `KserveGrpcClient` (no grpcurl).
+
+### Changed
+
+- `KserveGrpcClient` `fp64_contents` typed fallback documented as legacy-compat
+  for pre-0.3 runtimes; `neuriplo-kserve-runtime@develop` emits
+  `raw_output_contents` (runtime PR #9).
+- Conformance plan: Step 3 CI dry-run checked off; live gRPC revalidated against
+  merged runtime.
+
 ## [0.2.0] - 2026-06-11
 
 ### Added
