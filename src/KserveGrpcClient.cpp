@@ -265,6 +265,7 @@ ModelMetadata GrpcClient::modelMetadata() {
   }
 
   ModelMetadata metadata;
+  metadata.platform = response.platform();
   for (const auto &input : response.inputs()) {
     metadata.inputs.push_back(
         {input.name(), input.datatype().empty() ? "FP32" : input.datatype(),
