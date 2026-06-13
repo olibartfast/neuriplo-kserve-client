@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `ModelMetadata.platform`: the server's KServe V2 metadata `platform` field
+  (e.g. `tensorrt_plan`, `onnxruntime_onnx`, `openvino`, `neuriplo_litert`),
+  parsed by both the HTTP and gRPC clients. Empty when the server omits it.
+  Lets callers attribute results to the backend that actually ran the model.
 - gRPC raw-contents unit tests and `kserve-client-conformance` live oracle binary.
 - Runtime conformance harness gRPC leg via `KserveGrpcClient` (no grpcurl).
 
