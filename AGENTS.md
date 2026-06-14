@@ -66,8 +66,9 @@ See `.cursor/rules/gitflow-workflow.mdc`. In this repo GitFlow **`main`** is
 - **`feat/*`** — branch from `develop`; PR back to `develop`. Never target
   `master` for feature work.
 - **`release/*`** — release prep on `develop`; merge to `master`, tag, back-merge
-  to `develop`.
-- **`hotfix/*`** — branch from `master`; merge to `master` and `develop`.
+  to `develop`, then delete locally and on `origin`.
+- **`hotfix/*`** — branch from `master`; merge to `master` and `develop`, then
+  delete locally and on `origin`.
 - Do not push directly to `develop` or `master` unless the user explicitly asks.
 - After every `master` release, `develop` must not lag behind `master` (`git rev-list
   --left-right --count origin/develop...origin/master` → `0 0`).

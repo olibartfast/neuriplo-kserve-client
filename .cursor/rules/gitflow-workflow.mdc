@@ -34,14 +34,15 @@ Never merge features directly into `master`. Never branch features from `master`
 2. Update `CHANGELOG.md` for the release; only release fixes (no new features)
 3. Merge into `master`, tag version on `master`
 4. Merge back into `develop` (captures release fixes)
-5. Delete `release/<version>`
+5. Delete `release/<version>` locally and on `origin` (see
+   `gitflow-release-cleanup.mdc`)
 
 ### Hotfix
 
 1. Branch from `master`: `git checkout master && git pull && git checkout -b hotfix/<short-name>`
 2. Fix, then merge into both `master` and `develop`
 3. Tag updated version on `master`
-4. Delete the hotfix branch
+4. Delete the hotfix branch locally and on `origin`
 
 ## Rules
 
