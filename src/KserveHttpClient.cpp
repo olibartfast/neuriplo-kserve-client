@@ -467,6 +467,7 @@ ModelMetadata HttpClient::modelMetadata() {
   }
 
   ModelMetadata metadata;
+  metadata.platform = json.value("platform", "");
   for (const auto &input : json["inputs"]) {
     metadata.inputs.push_back({input["name"].get<std::string>(),
                                input.value("datatype", "FP32"),
