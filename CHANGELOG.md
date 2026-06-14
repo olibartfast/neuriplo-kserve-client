@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-06-14
+
+### Added
+
+- `ModelMetadata.platform`: the server's KServe V2 metadata `platform` field
+  (e.g. `tensorrt_plan`, `onnxruntime_onnx`, `openvino`, `neuriplo_litert`),
+  parsed by both the HTTP and gRPC clients. Empty when the server omits it.
+  Lets callers attribute results to the backend that actually ran the model.
+
 ## [0.3.0] - 2026-06-12
 
 ### Added
@@ -58,5 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   file-backed secrets.
 - GoogleTest suite for protocol helpers, retry policy, and TLS/secret resolution.
 
+[0.4.0]: https://github.com/olibartfast/neuriplo-kserve-client/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/olibartfast/neuriplo-kserve-client/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/olibartfast/neuriplo-kserve-client/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/olibartfast/neuriplo-kserve-client/releases/tag/v0.1.0

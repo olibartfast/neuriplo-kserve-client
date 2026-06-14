@@ -28,6 +28,11 @@ struct TensorSpec {
 struct ModelMetadata {
   std::vector<TensorSpec> inputs;
   std::vector<TensorSpec> outputs;
+  // Serving backend reported by the server (KServe V2 metadata "platform"
+  // field), e.g. "tensorrt_plan", "onnxruntime_onnx", "openvino". Empty when
+  // the server omits it. Callers use it to attribute results to the backend
+  // that actually ran the model.
+  std::string platform;
 };
 
 // One input tensor for an inference request. `data` points at preprocessed raw
