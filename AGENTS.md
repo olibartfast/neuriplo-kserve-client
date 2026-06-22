@@ -137,6 +137,13 @@ Avoid:
 - Breaking consumers (`neuriplo-infer` links this via FetchContent)
 - Release/version bumps without human coordination
 
+## Hyperlink verification
+
+When editing documentation (`README.md`, `plan/*.md`) with hyperlinks:
+- Verify all relative links resolve to existing files in the repo.
+- Verify absolute GitHub URLs are reachable.
+- Prefer absolute GitHub blob/tree URLs over fragile cross-repo relative paths.
+
 ## Coding conventions
 
 - C++20, 4-space indent
