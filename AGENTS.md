@@ -18,9 +18,6 @@ library depends only on the wire spec and transport libraries — never on
 | Server | `neuriplo-kserve-runtime` | KServe V2 serving runtime (test oracle) |
 | Adapter | `neuriplo-infer` | `KserveEngine` — bytes ↔ `TensorElement` |
 
-Cluster metadata: `neuriplo-platform/ops/CLUSTER_MAP.yaml` and
-`neuriplo-platform/ops/repo-meta/neuriplo-kserve-client.yaml`.
-
 ## MANDATORY: Protocol layer boundary
 
 **Stay inside this repo's contract.** Do not add neuriplo types, task
@@ -53,7 +50,6 @@ Dependency order for contract changes:
 1. Runtime server behavior (if the spec gap is server-side)
 2. Client encode/decode + unit tests (this repo)
 3. `neuriplo-infer` adapter + integration harness (Cursor repo)
-4. `neuriplo-platform` cross-repo e2e evidence (when release-gating)
 
 When in doubt: runtime merge first, then client PR → `develop`.
 
@@ -111,7 +107,6 @@ External oracles when validating wire behavior:
 |---------|----------|----------------|
 | Runtime conformance | `scripts/runtime_conformance.sh` (this repo) | Client ↔ `neuriplo-kserve-runtime` HTTP/gRPC |
 | Infer integration dry-run | `neuriplo-infer/app/test/kserve_integration.sh --dry-run` | Command construction for Triton/OVMS/runtime |
-| Platform e2e | `neuriplo-platform/integration-tests/kserve-runtime-e2e/` | Full app binary against runtime HTTP |
 
 For wire-contract PRs, run at minimum: `ctest` here + `runtime_conformance.sh`
 when the sibling runtime checkout is available.
@@ -161,9 +156,6 @@ target `develop` and should list:
 - Whether runtime conformance was exercised (live or dry-run)
 - Cross-repo impact (`none` / `needs infer adapter` / `needs runtime first`)
 - Link to KServe spec section when changing wire behavior
-
-Use `neuriplo-platform/ops/PR_EVIDENCE_TEMPLATE.md` when the platform coordinator
-asks for release evidence.
 
 ## Current work track
 
