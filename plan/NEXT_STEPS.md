@@ -79,6 +79,4 @@ and removes an external harness dependency.
 ## References
 
 - KServe V2 spec: https://kserve.github.io/website/
-- Cluster map: `neuriplo-platform/ops/CLUSTER_MAP.yaml`
 - Infer compatibility matrix: `neuriplo-infer/docs/KserveCompatibility.md`
-- Platform e2e: `neuriplo-platform/integration-tests/kserve-runtime-e2e/`
