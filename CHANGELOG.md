@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Server-side ensemble support, with no API change: an ensemble is an ordinary
+  KServe V2 model on the wire, so the existing `UINT8` inputs, `INT32` /
+  `INT64` / `FP32` raw outputs, and `ModelMetadata::platform` already carry it.
+  Coverage is what was missing:
+  - unit tests for variable-length `[1, N]` `UINT8` encoded-image inputs over
+    both the binary extension and the inline-JSON path, and for decoding the
+    decoded-result envelope out of a framed binary body;
+  - a `--ensemble-model` leg in `kserve-client-conformance` that checks
+    `platform: ensemble`, the single `IMAGE` input, and the envelope datatypes
+    against a live server.
+- README section on ensembles, including why envelope decoding stays out of
+  this library: it is a pure protocol peer, so interpreting results belongs to
+  the application adapter.
+
 ## [0.4.0] - 2026-06-14
 
 ### Added
