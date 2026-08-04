@@ -270,3 +270,98 @@ TEST(KserveProtocol, IClientModelManagementDefaultsThrow) {
   EXPECT_THROW(client.unloadModel("resnet"), std::runtime_error);
 }
 
+// --- Ensemble / encoded-image path -------------------------------------------
+//
+// A server-side ensemble takes an encoded image rather than a dense tensor, so
+// its input length changes per request, and returns a fixed decoded envelope
+// (see the platform ensemble contract). None of that needs new client API --
+// these tests pin that the existing primitives really carry it.
+
+TEST(KserveProtocol, EncodedImageInputCarriesVariableByteLength) {
+  // Two "images" of different sizes go over the same model without any shape
+  // agreed up front; only the declared shape changes.
+  const std::vector<std::uint8_t> small(37, 0xab);
+  const std::vector<std::uint8_t> large(4096, 0xcd);
+
+  std::vector<std::uint8_t> blob;
+  const auto small_node = kserve::appendBinaryInput(
+      "IMAGE", "UINT8", {1, static_cast<int64_t>(small.size())}, small, blob);
+  EXPECT_EQ(small_node["parameters"]["binary_data_size"].get<std::size_t>(),
+            small.size());
+  EXPECT_EQ(small_node["shape"][1].get<int64_t>(), 37);
+
+  blob.clear();
+  const auto large_node = kserve::appendBinaryInput(
+      "IMAGE", "UINT8", {1, static_cast<int64_t>(large.size())}, large, blob);
+  EXPECT_EQ(large_node["parameters"]["binary_data_size"].get<std::size_t>(),
+            large.size());
+  EXPECT_EQ(blob.size(), large.size());
+  EXPECT_EQ(blob.back(), 0xcd);
+}
+
+TEST(KserveProtocol, EncodedImageSurvivesJsonEncodingRoundTrip) {
+  // Byte values across the whole UINT8 range must survive the non-binary
+  // (inline JSON data) path too, since not every server enables the binary
+  // extension.
+  std::vector<std::uint8_t> image(256);
+  for (std::size_t i = 0; i < image.size(); ++i) {
+    image[i] = static_cast<std::uint8_t>(i);
+  }
+  const auto round_tripped = kserve::decodeTensorData(
+      kserve::encodeTensorData(image, "UINT8"), "UINT8");
+  EXPECT_EQ(round_tripped, image);
+}
+
+TEST(KserveProtocol, EnvelopeDatatypesAreAllTransportable) {
+  // The decoded envelope uses exactly four datatypes; every one must have a
+  // known byte width, or the client cannot size the raw payload.
+  EXPECT_EQ(kserve::datatypeByteWidth("INT32"),
+            4u); // NUM_DETECTIONS, BOXES, CLASSES
+  EXPECT_EQ(kserve::datatypeByteWidth("FP32"), 4u); // SCORES
+  EXPECT_EQ(kserve::datatypeByteWidth("INT64"),
+            8u); // MASK_OFFSETS, ring offsets
+  EXPECT_EQ(kserve::datatypeByteWidth("UINT8"), 1u); // IMAGE, MASK_DATA
+}
+
+TEST(KserveProtocol, EnvelopeTensorsDecodeFromFramedBinaryBody) {
+  // NUM_DETECTIONS=2 followed by two INT64 mask offsets, framed the way a
+  // server returns them: JSON header, then concatenated blobs in tensor order.
+  const std::int32_t count = 2;
+  const std::int64_t offsets[2] = {0, 512};
+
+  std::vector<std::uint8_t> blob;
+  const auto count_bytes = bytesOf(&count, sizeof(count));
+  const auto offset_bytes = bytesOf(offsets, sizeof(offsets));
+  nlohmann::json header;
+  header["outputs"] = nlohmann::json::array();
+  header["outputs"].push_back(kserve::appendBinaryInput(
+      "NUM_DETECTIONS", "INT32", {1}, count_bytes, blob));
+  header["outputs"].push_back(kserve::appendBinaryInput(
+      "MASK_OFFSETS", "INT64", {2}, offset_bytes, blob));
+
+  const std::string header_text = header.dump();
+  std::string body = header_text;
+  body.append(reinterpret_cast<const char *>(blob.data()), blob.size());
+
+  std::vector<std::uint8_t> parsed_blob;
+  const auto parsed =
+      kserve::splitBinaryBody(body, header_text.size(), parsed_blob);
+  ASSERT_EQ(parsed["outputs"].size(), 2u);
+
+  std::size_t offset = 0;
+  const auto first_size =
+      static_cast<std::size_t>(kserve::binaryDataSize(parsed["outputs"][0]));
+  const auto first = kserve::sliceBlob(parsed_blob, offset, first_size);
+  offset += first_size;
+  const auto second_size =
+      static_cast<std::size_t>(kserve::binaryDataSize(parsed["outputs"][1]));
+  const auto second = kserve::sliceBlob(parsed_blob, offset, second_size);
+
+  std::int32_t decoded_count = 0;
+  std::memcpy(&decoded_count, first.data(), sizeof(decoded_count));
+  EXPECT_EQ(decoded_count, 2);
+
+  std::int64_t decoded_offsets[2] = {0, 0};
+  std::memcpy(decoded_offsets, second.data(), sizeof(decoded_offsets));
+  EXPECT_EQ(decoded_offsets[1], 512);
+}
