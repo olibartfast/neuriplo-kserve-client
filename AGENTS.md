@@ -160,3 +160,12 @@ target `develop` and should list:
 ## Current work track
 
 See `plan/NEXT_STEPS.md` for status and the active task queue.
+
+## Specs (constitution and planning)
+
+`specs/` holds the project constitution (`mission.md`, `tech-stack.md`,
+`roadmap.md`) and is the planning entry point; `plan/` is the historical record.
+Read `specs/roadmap.md` first. Per its Specification Rule, multi-phase, public
+behavior or architecture, or low-reversibility work needs a dated packet in
+`specs/YYYY-MM-DD-feature-name/` before implementation. Cross-repo work is
+specified in neuriplo-platform. Conventions: `specs/README.md`.
