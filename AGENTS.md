@@ -38,6 +38,28 @@ Forbidden without explicit human review:
 - Breaking `IClient` or wire-format changes
 - Large cross-module refactors
 
+Out of scope (owned elsewhere — open a follow-up in the owner repo instead):
+
+| Concern | Owner repo |
+|---------|------------|
+| `TensorElement` / task tensors | `neuriplo-infer` (`KserveEngine`) |
+| Backend execution, plugins | `neuriplo` |
+| KServe HTTP server, scheduling | `neuriplo-kserve-runtime` |
+| Task preprocessing/postprocessing | `neuriplo-tasks` |
+| Release pins in consumers | Human (`neuriplo-infer/versions.env`) |
+
+Rules:
+
+1. **No neuriplo dependency** — do not link or include neuriplo headers.
+2. **Raw bytes on the wire** — `InferInput` / `InferOutput` carry little-endian
+   payloads; typed conversion belongs in consumer adapters.
+3. **`IClient` changes are breaking** — treat signature or semantic changes as
+   breaking; note downstream impact for `neuriplo-infer`.
+4. **Proto edits need review** — document which profile (`OIP` /
+   `OIP_REPOSITORY`) is affected; they change gRPC stubs and server compatibility.
+5. **Do not edit sibling repos from this task** unless the user explicitly asks
+   for a coordinated cross-repo change.
+
 ## MANDATORY: Cross-repo sequencing
 
 Anything touching the **wire contract** must land in
@@ -53,21 +75,61 @@ Dependency order for contract changes:
 
 When in doubt: runtime merge first, then client PR → `develop`.
 
+For release-gating changes, also run the platform e2e
+(`neuriplo-platform/integration-tests/`).
+
 ## MANDATORY: GitFlow workflow
 
 Follow [Atlassian GitFlow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).
-See `.cursor/rules/gitflow-workflow.mdc`. In this repo GitFlow **`main`** is
-**`master`**; **`develop`** is the integration branch.
+In this repo GitFlow **`main`** is **`master`**; **`develop`** is the integration branch.
 
-- **`feat/*`** — branch from `develop`; PR back to `develop`. Never target
-  `master` for feature work.
-- **`release/*`** — release prep on `develop`; merge to `master`, tag, back-merge
-  to `develop`, then delete locally and on `origin`.
-- **`hotfix/*`** — branch from `master`; merge to `master` and `develop`, then
-  delete locally and on `origin`.
+Branch roles:
+
+| Branch | Parent | Purpose |
+|--------|--------|---------|
+| `master` | — | Official release history; tag releases here |
+| `develop` | — | Integration branch for upcoming release |
+| `feat/*` | `develop` | New work; PR back to `develop`. Never target `master` for feature work |
+| `release/*` | `develop` | Release prep (bug fixes, docs only) |
+| `hotfix/*` | `master` only | Production patches; merge to `master` and `develop` |
+
+Agent workflow:
+
+- **Feature:** `git checkout develop && git pull && git checkout -b feat/<short-name>`;
+  commit on the branch; PR targeting `develop`; delete the branch after merge.
+- **Release:** branch `release/<version>` from `develop`; update `CHANGELOG.md`
+  (fixes/docs only, no new features); merge into `master`, tag `vX.Y.Z`; merge
+  back into `develop`; delete the branch locally and on `origin` (checklist below).
+- **Hotfix:** branch `hotfix/<short-name>` from `master`; fix; merge into both
+  `master` and `develop`; tag on `master`; delete the branch locally and on `origin`.
+
+Rules:
+
+- Before starting work, confirm the current branch matches the task type
+  (feature → `develop`, hotfix → `master`).
+- Do not commit feature work on `develop` or `master`; use a `feat/*` branch.
+- Prefer PRs for merges into `develop`, `master`, and `release/*`.
 - Do not push directly to `develop` or `master` unless the user explicitly asks.
 - After every `master` release, `develop` must not lag behind `master` (`git rev-list
   --left-right --count origin/develop...origin/master` → `0 0`).
+
+Release/hotfix branch cleanup (after merge to `master`, tag, and back-merge to
+`develop`): the **`master` tag** (`vX.Y.Z`) is the immutable release ref — do not
+leave finished branches on the remote.
+
+```bash
+git checkout develop
+git branch -d release/0.7.0
+git push origin --delete release/0.7.0
+```
+
+Agent checklist when a release is complete:
+
+1. Merged `release/X.Y.Z` → `master`; tagged `vX.Y.Z`; pushed `master` and tag.
+2. Merged `release/X.Y.Z` → `develop` (bump dev `VERSION` if the repo does that);
+   pushed `develop`.
+3. Deleted the branch locally and on `origin`.
+4. Confirmed `git branch -a | grep release` shows no finished release branch.
 
 Release tags and `versions.env` pin updates in `neuriplo-infer` are human-owned.
 Codex opens PRs; the human cuts releases.
@@ -103,6 +165,12 @@ round-trips against a live server are **not** in this repo's CI yet — see
 
 External oracles when validating wire behavior:
 
+| Check | When required |
+|-------|----------------|
+| `ctest --test-dir build` | Every C++ change |
+| `scripts/runtime_conformance.sh` | Wire or transport changes |
+| `neuriplo-infer/.../kserve_integration.sh --dry-run` | If infer harness commands may break |
+
 | Harness | Location | What it checks |
 |---------|----------|----------------|
 | Runtime conformance | `scripts/runtime_conformance.sh` (this repo) | Client ↔ `neuriplo-kserve-runtime` HTTP/gRPC |
@@ -115,7 +183,30 @@ when the sibling runtime checkout is available.
 
 **Keep this file current.** When your task changes build commands, CI, module
 boundaries, cross-repo rules, or `specs/roadmap.md`, update the matching
-`AGENTS.md` section in the same PR. See `.cursor/rules/agents-md-maintenance.mdc`.
+`AGENTS.md` section in the same PR — do not wait for the user to ask.
+
+Triggers — update `AGENTS.md` when you:
+
+1. Materially edit `specs/roadmap.md` or add a new spec packet
+2. Change build/test commands, CMake options, or CI validation steps
+3. Add new mandatory agent workflow rules
+4. Change repo layout, module boundaries, or the `IClient` public surface
+5. Add or move conformance/integration harnesses (`scripts/`, `test/`)
+
+What to sync:
+
+- Commands and conventions in the sections your change affects
+- Pointers to new scripts, tests, or cross-repo validation paths
+- One-line status in "Current work track" if `specs/roadmap.md` moved forward
+
+Do not:
+
+- Duplicate full `specs/roadmap.md` content inside `AGENTS.md`
+- Skip the update because the user did not mention `AGENTS.md`
+- Add neuriplo-infer or runtime implementation detail — link instead
+
+Quick check before finishing: if you touched `specs/`, `CMakeLists.txt`,
+`scripts/`, or `.github/workflows/`, re-read `AGENTS.md` and fix stale references.
 
 ## Review focus
 
@@ -164,7 +255,8 @@ See `specs/roadmap.md` for status and the active task queue. New work gets a dat
 ## Specs (constitution and planning)
 
 `specs/` holds the project constitution (`mission.md`, `tech-stack.md`,
-`roadmap.md`) and is the planning entry point; `specs/history/` holds the historical record.
+`roadmap.md`) and is the planning entry point; git history and `CHANGELOG.md`
+are the historical record.
 Read `specs/roadmap.md` first. Per its Specification Rule, multi-phase, public
 behavior or architecture, or low-reversibility work needs a dated packet in
 `specs/YYYY-MM-DD-feature-name/` before implementation. Cross-repo work is
