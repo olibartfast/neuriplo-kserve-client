@@ -12,10 +12,10 @@ this file links to those packets when a phase is part of one. The sibling
 [neuriplo-kserve-runtime](https://github.com/olibartfast/neuriplo-kserve-runtime)
 is the conformance oracle.
 
-The former planning status file is kept as the historical implementation record
-at [history/next-steps.md](history/next-steps.md), with [CHANGELOG.md](../CHANGELOG.md).
-This file is the planning entry point; its open items were merged here and
-completed history is summarized below, not copied.
+The former planning status file is ported into the retrospective packet
+[2026-06-12-runtime-conformance](2026-06-12-runtime-conformance/requirements.md) (the Phase 1 record); with
+[CHANGELOG.md](../CHANGELOG.md) it is the implementation record. This file is the
+planning entry point; its open items were merged here.
 
 ## Status Key
 
@@ -53,7 +53,7 @@ See [CHANGELOG.md](../CHANGELOG.md) 0.1.0 and 0.2.0.
 `scripts/runtime_conformance.sh` (dry-run and live), the `runtime_conformance_dry_run`
 CTest in CI, and the `kserve-client-conformance` oracle binary exercising the real
 `KserveGrpcClient`. Live HTTP and gRPC revalidated 2026-06-12 against
-`neuriplo-kserve-runtime@develop`. Detail: [history/next-steps.md](history/next-steps.md).
+`neuriplo-kserve-runtime@develop`. Detail: [2026-06-12-runtime-conformance](2026-06-12-runtime-conformance/requirements.md).
 
 ## Phase 2 - Backend Attribution and Ensemble Coverage
 
@@ -86,7 +86,7 @@ refreshed (A-7), infer pin bump handed to the human.
 
 **Status: Planned**
 
-Scope from [history/next-steps.md](history/next-steps.md) (Step 2, Step 3, Backlog 1-2):
+Scope from the open items of [2026-06-12-runtime-conformance](2026-06-12-runtime-conformance/requirements.md) (T-7, T-9, backlog 1-2):
 
 - Repository extension conformance (index, load, unload) when model control is on.
 - Strict `OIP` profile live test against OVMS or a minimal OIP server.
@@ -118,13 +118,13 @@ proto profiles, error semantics), or has low reversibility. The packet contains
 `requirements.md`, `plan.md`, and `validation.md`, with validation defined
 before implementation and evidence recorded after execution. Small contained
 fixes may use a concise PR-level specification; trivial fixes need no packet.
-Do not create speculative packets for inactive roadmap items or backfill
-packets for completed work. Work spanning repositories is specified in
+Do not create speculative packets for inactive roadmap items. The Phase 1
+retrospective packet is the only backfill. Work spanning repositories is specified in
 neuriplo-platform, not here.
 
 ## Assumptions to Confirm
 
 - A-11: Phases 4 to 6 order is a reconstruction of the backlog ordering in
-  [history/next-steps.md](history/next-steps.md), and the Codex "standby" status there may be outdated.
+  [2026-06-12-runtime-conformance](2026-06-12-runtime-conformance/requirements.md), and the Codex "standby" status recorded there may be outdated.
 
 _Revision: 2026-10-04 - initial brownfield adoption._

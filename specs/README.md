@@ -114,9 +114,11 @@ packets are readable without the skills at hand.
 ## Layout
 
 - `mission.md`, `tech-stack.md`, `roadmap.md` - the constitution.
-- `history/` - historical records, kept as reference: `next-steps.md` is the
-  former planning status file; its open items live in `roadmap.md`.
-- Dated `YYYY-MM-DD-feature-name/` packets for new work.
+- `templates/` - copy these to start a packet.
+- Dated `YYYY-MM-DD-feature-name/` packets. `2026-06-12-runtime-conformance/` is
+  a retrospective packet ported from the former planning status file; its open
+  items live in `roadmap.md`. New work gets a normal packet, with validation
+  written first.
 
-The old planning folder no longer exists; there is no separate architecture or
-procedures file in this repo.
+There are no planning, history or procedures folders; everything is a packet or
+part of the constitution.
