@@ -153,7 +153,7 @@ test/kserve-client-conformance --grpc-endpoint grpc://127.0.0.1:19091 \
 It checks `platform: ensemble`, the single `UINT8` `IMAGE` input, the envelope
 datatypes when the ensemble decodes results, and an encoded-image round trip.
 
-See `plan/NEXT_STEPS.md` for the Codex work track and
+See `specs/roadmap.md` for the work track and
 `AGENTS.md` for cross-repo sequencing rules.
 
 ## License
