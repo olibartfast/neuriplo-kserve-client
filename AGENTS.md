@@ -99,7 +99,7 @@ CMake options: see `README.md` (`KSERVE_CLIENT_ENABLE_GRPC`, `KSERVE_CLIENT_ENAB
 
 Repo-local CI (`.github/workflows/ci.yml`) runs the unit suite only. End-to-end
 round-trips against a live server are **not** in this repo's CI yet — see
-`plan/NEXT_STEPS.md` for the conformance track.
+`specs/roadmap.md` (Phase 1 and 4) for the conformance track.
 
 External oracles when validating wire behavior:
 
@@ -114,7 +114,7 @@ when the sibling runtime checkout is available.
 ## MANDATORY: Agent guide maintenance
 
 **Keep this file current.** When your task changes build commands, CI, module
-boundaries, cross-repo rules, or `plan/NEXT_STEPS.md`, update the matching
+boundaries, cross-repo rules, or `specs/roadmap.md`, update the matching
 `AGENTS.md` section in the same PR. See `.cursor/rules/agents-md-maintenance.mdc`.
 
 ## Review focus
@@ -134,7 +134,7 @@ Avoid:
 
 ## Hyperlink verification
 
-When editing documentation (`README.md`, `plan/*.md`) with hyperlinks:
+When editing documentation (`README.md`, `specs/**/*.md`) with hyperlinks:
 - Verify all relative links resolve to existing files in the repo.
 - Verify absolute GitHub URLs are reachable.
 - Prefer absolute GitHub blob/tree URLs over fragile cross-repo relative paths.
@@ -159,12 +159,12 @@ target `develop` and should list:
 
 ## Current work track
 
-See `plan/NEXT_STEPS.md` for status and the active task queue.
+See `specs/roadmap.md` for status and the active task queue. New work gets a dated packet under `specs/`.
 
 ## Specs (constitution and planning)
 
 `specs/` holds the project constitution (`mission.md`, `tech-stack.md`,
-`roadmap.md`) and is the planning entry point; `plan/` is the historical record.
+`roadmap.md`) and is the planning entry point; `specs/history/` holds the historical record.
 Read `specs/roadmap.md` first. Per its Specification Rule, multi-phase, public
 behavior or architecture, or low-reversibility work needs a dated packet in
 `specs/YYYY-MM-DD-feature-name/` before implementation. Cross-repo work is
