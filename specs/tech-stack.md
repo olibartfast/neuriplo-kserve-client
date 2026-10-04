@@ -120,7 +120,7 @@ is `test/kserve-client-conformance --grpc-endpoint <ep> --ensemble-model <name>`
   rather than a deliberate minimum version.
 - A-8: GoogleTest and nlohmann/json pins are assumed deliberate and not
   coordinated through a platform-level version matrix.
-- A-9: The `.cursor/rules/*.mdc` files are assumed to mirror the MANDATORY
-  sections of `AGENTS.md`; `AGENTS.md` wins on conflict.
+- A-9: Agent workflow rules live only in `AGENTS.md` (the former
+  `.cursor/rules/*.mdc` files were removed); `AGENTS.md` wins on conflict.
 
 _Revision: 2026-10-04 - initial brownfield adoption._
