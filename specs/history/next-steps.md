@@ -1,3 +1,5 @@
+> Historical record: the former planning status file, kept as reference. The live roadmap is [../roadmap.md](../roadmap.md); open items were merged there.
+
 # Next Steps — Codex work track
 
 **Agent:** Codex (standby — session limits) · **Integration branch:** `develop` ·

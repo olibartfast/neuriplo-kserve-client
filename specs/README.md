@@ -111,5 +111,12 @@ in `orchestration.md` follows `orchestrate-ai-coding-workflows`. The conventions
 above are what those produce across the ecosystem; they are recorded here so the
 packets are readable without the skills at hand.
 
-`../plan/` stays in place as the historical implementation record; see
-`roadmap.md` for how it relates to these files.
+## Layout
+
+- `mission.md`, `tech-stack.md`, `roadmap.md` - the constitution.
+- `history/` - historical records, kept as reference: `next-steps.md` is the
+  former planning status file; its open items live in `roadmap.md`.
+- Dated `YYYY-MM-DD-feature-name/` packets for new work.
+
+The old planning folder no longer exists; there is no separate architecture or
+procedures file in this repo.

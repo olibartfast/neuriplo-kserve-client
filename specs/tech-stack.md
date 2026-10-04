@@ -106,7 +106,7 @@ is `test/kserve-client-conformance --grpc-endpoint <ep> --ensemble-model <name>`
 ## Open Technical Decisions
 
 - Whether to add a scheduled or `workflow_dispatch` live-conformance CI job
-  (`plan/NEXT_STEPS.md` Step 3, needs a runtime artifact and human sign-off).
+  ([history/next-steps.md](history/next-steps.md) Step 3, needs a runtime artifact and human sign-off).
 - Whether to add FP16/BF16 raw-contents coverage once the runtime exposes them.
 - Error-mapping policy for HTTP status and gRPC codes to stable messages.
 - Whether a consumer-embedding smoke test replaces reliance on infer's CI.
