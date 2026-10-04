@@ -98,7 +98,7 @@ behavior, without implying coverage that has not been exercised live.
 - A-2: The ABI is not a promise; only source compatibility of `IClient` is.
   (Basis: static library, no export or versioning machinery.)
 - A-3: The "Primary agent: Codex" ownership split in `AGENTS.md` is current,
-  though `plan/NEXT_STEPS.md` marks the Codex track as on standby.
+  though [history/next-steps.md](history/next-steps.md) marks the Codex track as on standby.
 - A-4: Servers in scope are the runtime, Triton, OVMS, and KServe; no other
   servers need compatibility claims. (Basis: README and CHANGELOG wording.)
 - A-5: Quantitative latency, throughput, or footprint targets do not exist and

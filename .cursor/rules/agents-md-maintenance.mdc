@@ -12,7 +12,7 @@ Do not wait for the user to ask.
 
 Update `AGENTS.md` when you:
 
-1. Materially edit `plan/NEXT_STEPS.md` or add a new plan snapshot
+1. Materially edit `specs/roadmap.md` or add a new dated packet under `specs/`
 2. Change build/test commands, CMake options, or CI validation steps
 3. Add mandatory agent workflow rules (new `.cursor/rules/*.mdc`)
 4. Change repo layout, module boundaries, or the `IClient` public surface
@@ -22,15 +22,15 @@ Update `AGENTS.md` when you:
 
 - Commands and conventions in the sections your change affects
 - Pointers to new scripts, tests, or cross-repo validation paths
-- One-line status in "Current work track" if `plan/NEXT_STEPS.md` moved forward
+- One-line status in "Current work track" if `specs/roadmap.md` moved forward
 
 ## Do not
 
-- Duplicate full `plan/NEXT_STEPS.md` content inside `AGENTS.md`
+- Duplicate full `specs/roadmap.md` content inside `AGENTS.md`
 - Skip the update because the user did not mention `AGENTS.md`
 - Add neuriplo-infer or runtime implementation detail — link instead
 
 ## Quick check before finishing
 
-If you touched `plan/`, `.cursor/rules/`, `CMakeLists.txt`, `scripts/`, or
+If you touched `specs/`, `.cursor/rules/`, `CMakeLists.txt`, `scripts/`, or
 `.github/workflows/`, re-read `AGENTS.md` and fix stale references.
