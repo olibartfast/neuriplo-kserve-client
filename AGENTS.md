@@ -1,9 +1,9 @@
 # Agent Instructions — neuriplo-kserve-client
 
-**Primary agent:** Codex (OpenAI). This repo is the Codex-owned spoke in the
-neuriplo ensemble. Cursor owns `neuriplo-kserve-runtime` and `neuriplo-infer`;
-Claude Code owns `neuriplo` (hub — registry, plugin ABI, CI matrix). Merges,
-release tags, and sibling pin bumps stay with the human across all repos.
+**Agent roles:** assigned by the human. Any agent brand can fill any role; this
+repository is not owned by a specific harness. Merges, release tags, and sibling
+pin bumps stay with the human across all repos. See
+[`neuriplo-platform/coordination/COORDINATION.md`](https://github.com/olibartfast/neuriplo-platform/blob/main/coordination/COORDINATION.md).
 
 ## System overview
 
@@ -261,3 +261,14 @@ Read `specs/roadmap.md` first. Per its Specification Rule, multi-phase, public
 behavior or architecture, or low-reversibility work needs a dated packet in
 `specs/YYYY-MM-DD-feature-name/` before implementation. Cross-repo work is
 specified in neuriplo-platform. Conventions: `specs/README.md`.
+
+## Agent Commit Signing
+
+Every commit produced by an AI agent MUST include a `Co-authored-by` trailer
+that identifies the agent, the LLM model used, and the agent vendor. The
+canonical agent table, vendor emails, and the rule that vendor emails must not
+map to real GitHub profiles live in
+[`neuriplo-platform/AGENTS.md`](https://github.com/olibartfast/neuriplo-platform/blob/main/AGENTS.md#agent-commit-signing).
+
+Place the trailer in the commit body (after the subject line and blank line),
+not the subject.
