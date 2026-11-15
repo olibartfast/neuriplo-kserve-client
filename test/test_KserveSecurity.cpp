@@ -134,4 +134,3 @@ TEST(KserveSecurity, EndpointTlsClassification) {
   // Scheme matching is prefix-anchored; an https-looking host is not TLS.
   EXPECT_FALSE(kserve::parseEndpoint("httpsserver:80", 80).tls);
 }
-

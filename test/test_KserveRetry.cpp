@@ -140,4 +140,3 @@ TEST(KserveRetry, RunWithRetryRethrowsAfterExhaustion) {
       std::runtime_error);
   EXPECT_EQ(calls, 3); // all attempts used before the exception propagates
 }
-

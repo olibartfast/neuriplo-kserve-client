@@ -6,6 +6,21 @@ on:
   pull_request:
 
 jobs:
+  format-check:
+    name: Format Check
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install clang-format
+        run: pip install clang-format==21.1.8
+      - name: Check formatting
+        run: |
+          git ls-files 'src/*.cpp' 'src/*.hpp' 'include/*.hpp' 'test/*.cpp' | \
+            xargs clang-format --dry-run --Werror
+
   build-and-test:
     runs-on: ubuntu-latest
     strategy:
