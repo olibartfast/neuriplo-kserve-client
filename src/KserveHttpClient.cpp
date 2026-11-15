@@ -61,7 +61,7 @@ struct HttpConnection {
 namespace {
 
 void setTimeout(int fd, int timeout_ms) {
-  struct timeval timeout {};
+  struct timeval timeout{};
   timeout.tv_sec = timeout_ms / 1000;
   timeout.tv_usec = (timeout_ms % 1000) * 1000;
   ::setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout));
@@ -70,7 +70,7 @@ void setTimeout(int fd, int timeout_ms) {
 
 // IPv4/IPv6-capable, thread-safe connect (replaces gethostbyname).
 int connectSocket(const std::string &host, int port, int timeout_ms) {
-  struct addrinfo hints {};
+  struct addrinfo hints{};
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
 

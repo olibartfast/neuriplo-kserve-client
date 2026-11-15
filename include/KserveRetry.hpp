@@ -62,8 +62,8 @@ double defaultJitter();
 template <typename Attempt, typename IsRetryable, typename Sleeper,
           typename Rng>
 auto runWithRetry(const RetryPolicy &policy, Attempt attempt,
-                  IsRetryable is_retryable, Sleeper sleeper,
-                  Rng rng) -> decltype(attempt()) {
+                  IsRetryable is_retryable, Sleeper sleeper, Rng rng)
+    -> decltype(attempt()) {
   const int attempts = policy.max_attempts > 0 ? policy.max_attempts : 1;
   for (int i = 1;; ++i) {
     const bool last = i >= attempts;

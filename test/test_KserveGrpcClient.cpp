@@ -15,8 +15,8 @@
 
 namespace {
 
-template <typename T> std::vector<std::uint8_t> bytesOf(const T *values,
-                                                        std::size_t count) {
+template <typename T>
+std::vector<std::uint8_t> bytesOf(const T *values, std::size_t count) {
   std::vector<std::uint8_t> out(sizeof(T) * count);
   std::memcpy(out.data(), values, out.size());
   return out;
@@ -125,9 +125,9 @@ TEST(KserveGrpcClient, SendsRawInputContentsAndReadsRawOutputContents) {
   EXPECT_EQ(fixture.service_.last_request.raw_input_contents_size(), 1);
   EXPECT_EQ(fixture.service_.last_request.raw_input_contents(0),
             std::string(input_bytes.begin(), input_bytes.end()));
-  EXPECT_EQ(fixture.service_.last_request.inputs(0).contents()
-                .fp32_contents_size(),
-            0);
+  EXPECT_EQ(
+      fixture.service_.last_request.inputs(0).contents().fp32_contents_size(),
+      0);
 
   ASSERT_EQ(outputs.size(), 1U);
   EXPECT_EQ(outputs[0].name, "scores");

@@ -165,7 +165,8 @@ void appendBytes(std::vector<uint8_t> &out, const Range &range) {
 
 // Legacy-compat fallback for pre-0.3 runtimes that widened numeric outputs into
 // fp64_contents instead of raw_output_contents or the matching typed field.
-// Keep when reading typed contents; neuriplo-kserve-runtime@develop emits raw bytes.
+// Keep when reading typed contents; neuriplo-kserve-runtime@develop emits raw
+// bytes.
 template <typename T, typename Range, typename FallbackRange>
 void appendBytesOrFp64Fallback(std::vector<uint8_t> &out, const Range &range,
                                const FallbackRange &fp64_fallback) {
@@ -180,13 +181,11 @@ std::vector<uint8_t> contentsToBytes(const inference::InferTensorContents &c,
                                      const std::string &datatype) {
   std::vector<uint8_t> out;
   if (datatype == "FP32") {
-    appendBytesOrFp64Fallback<float>(out, c.fp32_contents(),
-                                     c.fp64_contents());
+    appendBytesOrFp64Fallback<float>(out, c.fp32_contents(), c.fp64_contents());
   } else if (datatype == "FP64") {
     appendBytes<double>(out, c.fp64_contents());
   } else if (datatype == "INT8") {
-    appendBytesOrFp64Fallback<int8_t>(out, c.int_contents(),
-                                      c.fp64_contents());
+    appendBytesOrFp64Fallback<int8_t>(out, c.int_contents(), c.fp64_contents());
   } else if (datatype == "INT16") {
     appendBytesOrFp64Fallback<int16_t>(out, c.int_contents(),
                                        c.fp64_contents());
@@ -448,18 +447,18 @@ void GrpcClient::unloadModel(const std::string &model_name) {
 #else
 
 std::vector<RepositoryModel> GrpcClient::repositoryIndex() {
-  throw std::runtime_error(
-      "model repository gRPC not compiled in (use OIP_REPOSITORY proto profile)");
+  throw std::runtime_error("model repository gRPC not compiled in (use "
+                           "OIP_REPOSITORY proto profile)");
 }
 
 void GrpcClient::loadModel(const std::string & /*model_name*/) {
-  throw std::runtime_error(
-      "model repository gRPC not compiled in (use OIP_REPOSITORY proto profile)");
+  throw std::runtime_error("model repository gRPC not compiled in (use "
+                           "OIP_REPOSITORY proto profile)");
 }
 
 void GrpcClient::unloadModel(const std::string & /*model_name*/) {
-  throw std::runtime_error(
-      "model repository gRPC not compiled in (use OIP_REPOSITORY proto profile)");
+  throw std::runtime_error("model repository gRPC not compiled in (use "
+                           "OIP_REPOSITORY proto profile)");
 }
 
 #endif
